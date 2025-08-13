@@ -4,6 +4,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
+    name: 'login',
+    component: () => import('@/views/Login.vue')
+  },
+  {
+    path: '/home',
     name: 'home',
     component: () => import('@/views/HomeView.vue')
   },
@@ -210,6 +215,23 @@ const router = createRouter({
   // eslint-disable-next-line no-undef
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+})
+
+
+// 🔒 Guard para proteger rutas
+router.beforeEach((to, from, next) => {
+  const publicPages = ['login']
+  const authRequired = !publicPages.includes(to.name)
+
+  const userData = sessionStorage.getItem('userData')
+  const user = userData ? JSON.parse(userData) : null
+
+  if (authRequired && (!user || !user.isLogin)) {
+
+    return next({ name: 'login' })
+  }
+
+  next()
 })
 
 export default router

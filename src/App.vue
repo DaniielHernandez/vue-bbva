@@ -1,19 +1,14 @@
 <template>
   <v-app>
     <v-main>
-      <information-modal
-        :open="modal.open"
-        :close="closeModal"
-        :confirmation="modal.confirmation"
-        :onAccept="modal.onAccept"
-        :title="modal.title"
-        :forceOnAccept="modal.forceOnAccept"
-        :message="modal.message"
-        :type="modal.type"
-      />
+      <information-modal :open="modal.open" :close="closeModal" :confirmation="modal.confirmation"
+        :onAccept="modal.onAccept" :title="modal.title" :forceOnAccept="modal.forceOnAccept" :message="modal.message"
+        :type="modal.type" />
       <div v-if="access">
-        <bbva-navigation-menu v-if="showMenu" :notificationCount="notificationCount" ref="menu" />
-        <div :class="showMenu ? 'pl-14' : ''">
+        <div v-if="isLogin">
+          <bbva-navigation-menu v-if="showMenu" :notificationCount="notificationCount" ref="menu" />
+        </div>
+        <div :class="isLogin ? (showMenu ? 'pl-14' : '') : 'w-full'">
           <router-view></router-view>
         </div>
         <overlay-loader :open="loading || validating" />
@@ -21,6 +16,7 @@
     </v-main>
   </v-app>
 </template>
+
 
 <script>
 import InformationModal from '@/components/modals/InformationModal.vue'
@@ -67,7 +63,9 @@ export default {
       /* Flag, true if the menu must be showed */
       showMenu: true,
       /* Flag, true when it's validating the permission of the current view */
-      validating: false
+      validating: false,
+
+      isLogin: false
     }
   },
   components: {
@@ -76,6 +74,17 @@ export default {
     OverlayLoader
   },
   mounted() {
+    const userData = sessionStorage.getItem('userData')
+    if (userData) {
+      const user = JSON.parse(userData)
+      this.isLogin = user.isLogin === true
+    }
+
+    // Opcional: si no está logueado, redirigir al login
+    if (!this.isLogin) {
+      this.$router.replace({ name: 'login' })
+    }
+
     this.setupNotifications()
     /*
      * Handle's the refresh of the notification count when one is marked
@@ -162,38 +171,38 @@ export default {
     $route() {
       const noMenuRoutes = ['model-new', 'model-edit'];
       const path = this.$route.path.replace(/\/\d+/, '');
-      if( [
-          '/'
-        ].includes(path)
+      if ([
+        '/'
+      ].includes(path)
       ) {
         this.access = true;
       } else {
         this.validating = true;
-        checkPermissionAPI(path).then( (response) => {
-          if( !response.data.success ) {
-            this.access = false;
-            this.modal = {
-              open: true,
-              type: 'caution',
-              title: 'obtener datos',
-              message: 'No tienes permiso para obtener estos datos'
-            };
+        // checkPermissionAPI(path).then((response) => {
+        //   if (!response.data.success) {
+        //     this.access = false;
+        //     this.modal = {
+        //       open: true,
+        //       type: 'caution',
+        //       title: 'obtener datos',
+        //       message: 'No tienes permiso para obtener estos datos'
+        //     };
 
 
-          } else {
-            this.access = true;
-          }
+        //   } else {
+        //     this.access = true;
+        //   }
 
-          this.validating = false;
-        }).catch( (error) => {
-          this.access = false;
-          this.modal.open = true;
+        //   this.validating = false;
+        // }).catch((error) => {
+        //   this.access = false;
+        //   this.modal.open = true;
 
-          this.validating = false;
-        });
+        //   this.validating = false;
+        // });
       }
 
-      if( noMenuRoutes.includes( this.$route.name ) ) {
+      if (noMenuRoutes.includes(this.$route.name)) {
         this.showMenu = false;
       } else {
         this.showMenu = true;
