@@ -15,6 +15,7 @@
       </div>
     </v-main>
   </v-app>
+  
 </template>
 
 
@@ -28,6 +29,7 @@ import { checkPermissionAPI } from '@/requests/security.js'
 import { getNotificationCount } from '@/requests/alerts'
 // Constants
 import { REQUEST_NOTIFICATIONS_INTERVAL } from '@/constants/alertNotifications'
+
 const supportedLanguages = ['en', 'en-US', 'es', 'es-ES', 'es-US']
 const defaultLanguage = 'en-US'
 window.IntlMsg = window.IntlMsg || {}

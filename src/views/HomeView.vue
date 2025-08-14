@@ -15,6 +15,10 @@ import UserForm from '@/components/forms/UserForm.vue';
 import { updateStatusUsersAPI, getUsersAPI, createUserAPI, updateUserAPI } from '@/requests/users';
 import InformationModal from '@/components/modals/InformationModal.vue';
 
+import '@/components/bbva-web-components/bbva-web-table-header.js'
+import '@/components/bbva-web-components/bbva-web-table-body.js'
+import { onMounted } from 'vue';
+
 
 export default {
   data() {
@@ -22,10 +26,10 @@ export default {
       /* Flag, true if it is loading */
       loading: false,
       /* Data used by the table component */
-      table: {
-        headers: headersTable, refresh: 0,
-        request: getUsersAPI, filters: filtersTable, requestDataKeys
-      },
+      // table: {
+      //   headers: headersTable, refresh: 0,
+      //   request: getUsersAPI, filters: filtersTable, requestDataKeys
+      // },
       /* Data used by the form */
       form: {
         id: null,
@@ -42,6 +46,18 @@ export default {
         message: '',
         type: ''
       },
+      headersTableUsers :[
+          { title: 'Nombre y Apellidos', key: 'nombreApellidos' },
+          { title: 'Email', key: 'email' },
+          { title: 'ID Usuario', key: 'userId' },
+          { title: 'Geografía', key: 'geografia' },
+          { title: 'Business Unit', key: 'businessUnit' },
+          { title: 'Rol', key: 'rol' },
+          { title: 'Perfil', key: 'profile' },
+          { title: 'Cargo/Área', key: 'area' }
+        ],
+
+      users : []
     }
   },
   components: {
@@ -52,6 +68,8 @@ export default {
     SectionHeader,
     UserForm,
   },
+
+  
   methods: {
     /*
      * It opens the form edit and set the item
@@ -137,19 +155,122 @@ export default {
         });
       }
     }
-  }
+  },
+  mounted(){
+  const rawUsers = JSON.parse(localStorage.getItem('users') || '[]');
+  this.users = rawUsers.map(u => ({
+    nombreApellidos: `${u.firstName} ${u.lastName}`,
+    email: u.email,
+    userId: u.userId,
+    geografia: u.country || '',
+    businessUnit: u.companyName || '',
+    rol: u.tipoBuzon || '',
+    profile: u.tipoLicencia || '',
+    area: u.department || ''
+  }));
+
+}
 };
+
+
+  
+
+
 </script>
 
 <template>
   <app-bar />
   <section-header title="Configuración de usuarios y roles" backPath="/setup"
     icon="/icons/The-Best-And-Most-Engaged-Team.svg" textButton="Crear nuevo usuario" :onClickButton="newItem" />
-  <data-table :headers="table.headers" :onEdit="edit" star :refresh="table.refresh" :onStar="star" :destroy="false"
+  <!-- <data-table :headers="table.headers" :onEdit="edit" star :refresh="table.refresh" :onStar="star" :destroy="false"
     :requestData="table.request" :requestDataKeys="table.requestDataKeys" :filtersOptions="table.filters"
-    :requestError="errorInRequestModal" />
+    :requestError="errorInRequestModal" /> -->
+
+
+
+<h2>Lista de Usuarios</h2>
+<!-- <table>
+  <thead>
+    <tr>
+      <th>Nombre y Apellidos</th>
+      <th>Email</th>
+      <th>ID Usuario</th>
+      <th>Geografía</th>
+      <th>Business Unit</th>
+      <th>Rol</th>
+      <th>Perfil</th>
+      <th>Cargo/Área</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Juan Pérez</td>
+      <td>juan.perez@example.com</td>
+      <td>12345</td>
+      <td>México</td>
+      <td>Finanzas</td>
+      <td>Administrador</td>
+      <td>Senior</td>
+      <td>Contabilidad</td>
+    </tr>
+    <tr>
+      <td>María López</td>
+      <td>maria.lopez@example.com</td>
+      <td>67890</td>
+      <td>España</td>
+      <td>Marketing</td>
+      <td>Editor</td>
+      <td>Junior</td>
+      <td>Publicidad</td>
+    </tr>
+  </tbody>
+</table> -->
+
+  <v-container>
+    <v-data-table
+      :headers="headersTableUsers" 
+      :items="users"
+      class="elevation-1"
+    >
+    </v-data-table>
+  </v-container>
+
+  {{ headersTableUsers[0]?.text }}
+
   <user-form :close="closeForm" :data="form.data" :save="save" :open="form.open" :requestError="errorInRequestModal" />
   <information-modal :open="modal.open" :close="closeModal" :title="modal.title" :message="modal.message"
     :type="modal.type" />
   <overlay-loader :open="loading" />
+
 </template>
+
+<style scoped>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1976d2;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  tr:hover {
+    background-color: #e3f2fd;
+  }
+</style>
