@@ -92,6 +92,17 @@ export default {
       this.$router.replace({ name: 'login' })
     }
 
+    this.emitter.on('loginStatusChanged', (status) => {
+      this.isLogin = status
+    })
+
+    this.emitter.on('informational', (evt) => {
+      this.modal = {
+        open: true,
+        ...evt
+      }
+    })
+
     this.setupNotifications()
     /*
      * Handle's the refresh of the notification count when one is marked
@@ -179,34 +190,35 @@ export default {
       const noMenuRoutes = ['model-new', 'model-edit'];
       const path = this.$route.path.replace(/\/\d+/, '');
       if ([
-        '/','/home'
+        '/',
+        '/home'
       ].includes(path)
       ) {
         this.access = true;
       } else {
         this.validating = true;
-        // checkPermissionAPI(path).then((response) => {
-        //   if (!response.data.success) {
-        //     this.access = false;
-        //     this.modal = {
-        //       open: true,
-        //       type: 'caution',
-        //       title: 'obtener datos',
-        //       message: 'No tienes permiso para obtener estos datos'
-        //     };
+        checkPermissionAPI(path).then((response) => {
+          if (!response.data.success) {
+            this.access = false;
+            this.modal = {
+              open: true,
+              type: 'caution',
+              title: 'obtener datos',
+              message: 'No tienes permiso para obtener estos datos'
+            };
 
 
-        //   } else {
-        //     this.access = true;
-        //   }
+          } else {
+            this.access = true;
+          }
 
-        //   this.validating = false;
-        // }).catch((error) => {
-        //   this.access = false;
-        //   this.modal.open = true;
+          this.validating = false;
+        }).catch((error) => {
+          this.access = false;
+          this.modal.open = true;
 
-        //   this.validating = false;
-        // });
+          this.validating = false;
+        });
       }
 
       if (noMenuRoutes.includes(this.$route.name)) {

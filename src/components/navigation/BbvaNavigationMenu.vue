@@ -1,20 +1,9 @@
 <!-- eslint-disable vue/no-deprecated-slot-attribute -->
 <template>
-  <aside
-    class="menu-container"
-    ref="container"
-    @mouseover="() => openMenu()"
-    @mouseleave="() => closeMenu()"
-    @focusin="() => openMenu()"
-    @focusout="() => closeMenu()"
-  >
-    <bbva-web-navigation-menu
-      item-groups="3"
-      exit-text="Log out"
-      ref="menu"
-      style="z-index: 300"
-      @menu-item-click="(ev) => navigateTo(ev.target.value)"
-    >
+  <aside class="menu-container" ref="container" @mouseover="() => openMenu()" @mouseleave="() => closeMenu()"
+    @focusin="() => openMenu()" @focusout="() => closeMenu()">
+    <bbva-web-navigation-menu item-groups="3" exit-text="Log out" ref="menu" style="z-index: 300"
+      @menu-item-click="(ev) => navigateTo(ev.target.value)" @exit-click="(ev) => logOut()">
       <bbva-web-navigation-menu-item icon="bbva:home" slot="group1" value="/">
         Inicio
       </bbva-web-navigation-menu-item>
@@ -23,58 +12,35 @@
         Resumen Ejecutivo
       </bbva-web-navigation-menu-item>
 
-      <bbva-web-navigation-menu-item
-        slot="group1"
-        value="service-levels"
-        :hidden="!(hover && opened.includes('executiveSumup'))"
-      >
+      <bbva-web-navigation-menu-item slot="group1" value="service-levels"
+        :hidden="!(hover && opened.includes('executiveSumup'))">
         Disponibilidad
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group1"
-        value="response-times"
-        :hidden="!(hover && opened.includes('executiveSumup'))"
-      >
+      <bbva-web-navigation-menu-item slot="group1" value="response-times"
+        :hidden="!(hover && opened.includes('executiveSumup'))">
         Tiempo de respuesta
       </bbva-web-navigation-menu-item>
 
-      <bbva-web-navigation-menu-item
-        icon="bbva:maxminscreen"
-        slot="group1"
-        value="impact-adjustments"
-      >
+      <bbva-web-navigation-menu-item icon="bbva:maxminscreen" slot="group1" value="impact-adjustments">
         Ajustes de impacto
       </bbva-web-navigation-menu-item>
 
       <bbva-web-navigation-menu-item icon="bbva:editticket" slot="group2" value="impactTickets">
         Folios con impacto
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group2"
-        value="impact-tickets"
-        :hidden="!(hover && opened.includes('impactTickets'))"
-      >
+      <bbva-web-navigation-menu-item slot="group2" value="impact-tickets"
+        :hidden="!(hover && opened.includes('impactTickets'))">
         Por folios
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group2"
-        value="impacts-by-category"
-        :hidden="!(hover && opened.includes('impactTickets'))"
-      >
+      <bbva-web-navigation-menu-item slot="group2" value="impacts-by-category"
+        :hidden="!(hover && opened.includes('impactTickets'))">
         Por Categoría
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group2"
-        value="event-map"
-        :hidden="!(hover && opened.includes('impactTickets'))"
-      >
+      <bbva-web-navigation-menu-item slot="group2" value="event-map"
+        :hidden="!(hover && opened.includes('impactTickets'))">
         Mapa de eventos
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group2"
-        value="omega"
-        :hidden="!(hover && opened.includes('impactTickets'))"
-      >
+      <bbva-web-navigation-menu-item slot="group2" value="omega" :hidden="!(hover && opened.includes('impactTickets'))">
         Informe omega
       </bbva-web-navigation-menu-item>
 
@@ -82,37 +48,23 @@
         Acciones de configuración
       </bbva-web-navigation-menu-item>
 
-      <bbva-web-navigation-menu-item
-        class="alert-notificacions-menu-item"
-        icon="bbva:alarm"
-        slot="group3"
-        value="alerts"
-      >
+      <bbva-web-navigation-menu-item class="alert-notificacions-menu-item" icon="bbva:alarm" slot="group3"
+        value="alerts">
         Alertas
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group3"
-        value="alert-notifications"
-        :hidden="!(hover && opened.includes('alerts'))"
-      >
+      <bbva-web-navigation-menu-item slot="group3" value="alert-notifications"
+        :hidden="!(hover && opened.includes('alerts'))">
         <span v-if="notificationCount > 0" class="link-notification-badge">{{
           notificationCount
         }}</span>
         Notificadas
       </bbva-web-navigation-menu-item>
-      <bbva-web-navigation-menu-item
-        slot="group3"
-        value="unattended-alerts"
-        :hidden="!(hover && opened.includes('alerts'))"
-      >
+      <bbva-web-navigation-menu-item slot="group3" value="unattended-alerts"
+        :hidden="!(hover && opened.includes('alerts'))">
         No atendidas
       </bbva-web-navigation-menu-item>
 
-      <bbva-web-navigation-menu-item
-        icon="bbva:graphics"
-        slot="group3"
-        value="environments-validations"
-      >
+      <bbva-web-navigation-menu-item icon="bbva:graphics" slot="group3" value="environments-validations">
         Validación entornos previos
       </bbva-web-navigation-menu-item>
     </bbva-web-navigation-menu>
@@ -250,7 +202,14 @@ export default {
      */
     removeNotificationBadge() {
       badgeDiv.remove()
-    }
+    },
+
+    logOut() {
+      sessionStorage.clear()
+      this.emitter.emit('loginStatusChanged', false)
+      this.$router.push({ name: 'login' })
+    },
+
   },
   mounted() {
     this.updateSelectedItem()
@@ -317,10 +276,8 @@ export default {
   margin-right: 4px;
   border: 1px solid #fff;
   border-radius: 50%;
-  background-color: var(
-    --bbva-web-badge-notification-alert-bg-color,
-    var(--colorsTertiaryType1Dark, #b92a45)
-  );
+  background-color: var(--bbva-web-badge-notification-alert-bg-color,
+      var(--colorsTertiaryType1Dark, #b92a45));
   font-size: 12px;
 }
 </style>

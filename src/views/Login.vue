@@ -30,14 +30,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, computed, getCurrentInstance } from 'vue'
 import '@/components/bbva-web-components/bbva-web-form-text.js'
 import '@/components/bbva-web-components/bbva-form-input.js'
 import '@/components/bbva-web-components/bbva-web-form-select.js'
 import '@/components/bbva-web-components/bbva-button-default.js'
 import '@/components/bbva-web-components/bbva-foundations-icons.js'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
+
+const internalInstance = getCurrentInstance()
+const emitter: any = internalInstance?.proxy?.emitter
 
 
 const testUsers = [
@@ -89,7 +93,14 @@ const onSubmit = () => {
   )
 
   if (!foundUser) {
-    alert('Usuario o contraseña incorrectos')
+    emitter?.emit('informational', {
+      onAccept: () => ({}),
+      title: 'Permiso denegado',
+      message: 'Usuario o contraseña incorrectos',
+      type: 'caution',
+      forceOnAccept: false,
+      confirmation: false
+    })
     return
   }
 
@@ -101,7 +112,7 @@ const onSubmit = () => {
   }
 
   sessionStorage.setItem('userData', JSON.stringify(userData))
-
+  emitter?.emit('loginStatusChanged', true)
   router.push({ name: 'home' })
 
 }
