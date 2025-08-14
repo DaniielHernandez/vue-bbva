@@ -17,6 +17,7 @@ import InformationModal from '@/components/modals/InformationModal.vue';
 
 import '@/components/bbva-web-components/bbva-web-table-header.js'
 import '@/components/bbva-web-components/bbva-web-table-body.js'
+import '@/components/bbva-web-components/bbva-button-default.js'
 import { onMounted } from 'vue';
 
 
@@ -46,18 +47,19 @@ export default {
         message: '',
         type: ''
       },
-      headersTableUsers :[
-          { title: 'Nombre y Apellidos', key: 'nombreApellidos' },
-          { title: 'Email', key: 'email' },
-          { title: 'ID Usuario', key: 'userId' },
-          { title: 'Geografía', key: 'geografia' },
-          { title: 'Business Unit', key: 'businessUnit' },
-          { title: 'Rol', key: 'rol' },
-          { title: 'Perfil', key: 'profile' },
-          { title: 'Cargo/Área', key: 'area' }
-        ],
+      headersTableUsers: [
+        { title: 'Nombre y Apellidos', key: 'nombreApellidos' },
+        { title: 'Email', key: 'email' },
+        { title: 'ID Usuario', key: 'userId' },
+        { title: 'Geografía', key: 'geografia' },
+        { title: 'Business Unit', key: 'businessUnit' },
+        { title: 'Rol', key: 'rol' },
+        { title: 'Perfil', key: 'profile' },
+        { title: 'Cargo/Área', key: 'area' },
+        { title: 'Acciones', key: 'actions', sortable: false } // <-- Nueva columna
+      ],
 
-      users : []
+      users: []
     }
   },
   components: {
@@ -69,7 +71,7 @@ export default {
     UserForm,
   },
 
-  
+
   methods: {
     /*
      * It opens the form edit and set the item
@@ -156,24 +158,24 @@ export default {
       }
     }
   },
-  mounted(){
-  const rawUsers = JSON.parse(localStorage.getItem('users') || '[]');
-  this.users = rawUsers.map(u => ({
-    nombreApellidos: `${u.firstName} ${u.lastName}`,
-    email: u.email,
-    userId: u.userId,
-    geografia: u.country || '',
-    businessUnit: u.companyName || '',
-    rol: u.tipoBuzon || '',
-    profile: u.tipoLicencia || '',
-    area: u.department || ''
-  }));
+  mounted() {
+    const rawUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    this.users = rawUsers.map(u => ({
+      nombreApellidos: `${u.firstName} ${u.lastName}`,
+      email: u.email,
+      userId: u.userId,
+      geografia: u.country || '',
+      businessUnit: u.companyName || '',
+      rol: u.tipoBuzon || '',
+      profile: u.tipoLicencia || '',
+      area: u.department || ''
+    }));
 
-}
+  }
 };
 
 
-  
+
 
 
 </script>
@@ -188,54 +190,25 @@ export default {
 
 
 
-<h2>Lista de Usuarios</h2>
-<!-- <table>
-  <thead>
-    <tr>
-      <th>Nombre y Apellidos</th>
-      <th>Email</th>
-      <th>ID Usuario</th>
-      <th>Geografía</th>
-      <th>Business Unit</th>
-      <th>Rol</th>
-      <th>Perfil</th>
-      <th>Cargo/Área</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Juan Pérez</td>
-      <td>juan.perez@example.com</td>
-      <td>12345</td>
-      <td>México</td>
-      <td>Finanzas</td>
-      <td>Administrador</td>
-      <td>Senior</td>
-      <td>Contabilidad</td>
-    </tr>
-    <tr>
-      <td>María López</td>
-      <td>maria.lopez@example.com</td>
-      <td>67890</td>
-      <td>España</td>
-      <td>Marketing</td>
-      <td>Editor</td>
-      <td>Junior</td>
-      <td>Publicidad</td>
-    </tr>
-  </tbody>
-</table> -->
-
+  <h2>Lista de Usuarios</h2>
   <v-container>
-    <v-data-table
-      :headers="headersTableUsers" 
-      :items="users"
-      class="elevation-1"
-    >
+    <v-data-table :headers="headersTableUsers" :items="users" class="elevation-1">
+      <template #item.actions="{ item }">
+        <!-- Botón Editar -->
+        <bbva-button-default text="" variant="link" class="pt-3" style="color: #1976d2; padding-bottom: 10px"
+          @click="edit(item)" icon="bbva:edit">
+        </bbva-button-default>
+
+        <!-- Botón Eliminar -->
+        <bbva-button-default text="" variant="link" class="pt-3" style="color: #d32f2f; padding-bottom: 10px"
+          @click="deleteUser(item)" icon="bbva:trash">
+        </bbva-button-default>
+      </template>
     </v-data-table>
   </v-container>
 
-  {{ headersTableUsers[0]?.text }}
+
+
 
   <user-form :close="closeForm" :data="form.data" :save="save" :open="form.open" :requestError="errorInRequestModal" />
   <information-modal :open="modal.open" :close="closeModal" :title="modal.title" :message="modal.message"
@@ -245,32 +218,43 @@ export default {
 </template>
 
 <style scoped>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background: #f5f5f5;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-  }
-  th {
-    background-color: #1976d2;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  tr:hover {
-    background-color: #e3f2fd;
-  }
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #1976d2;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: #e3f2fd;
+}
+
+.container-table {
+  margin-left: 10%;
+  margin-right: 10%;
+}
 </style>
