@@ -179,7 +179,7 @@ export default {
       const noMenuRoutes = ['model-new', 'model-edit'];
       const path = this.$route.path.replace(/\/\d+/, '');
       if ([
-        '/'
+        '/','/home'
       ].includes(path)
       ) {
         this.access = true;
