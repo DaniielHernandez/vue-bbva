@@ -80,6 +80,13 @@ export default {
       this.isLogin = user.isLogin === true
     }
 
+    // Cargar usuarios desde users.json y guardarlos en localStorage
+    fetch('/users.json')
+      .then(response => response.json())
+      .then(users => {
+        localStorage.setItem('users', JSON.stringify(users));
+      });
+
     // Opcional: si no está logueado, redirigir al login
     if (!this.isLogin) {
       this.$router.replace({ name: 'login' })
