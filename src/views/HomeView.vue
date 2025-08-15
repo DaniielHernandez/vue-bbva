@@ -165,6 +165,9 @@ export default {
       // Reinicia formulario y refresca tabla
       this.form = { ...this.form, id: null, data: {} };
       this.table.refresh++;
+    },
+    deleteUser(user) {
+      this.users = this.users.filter(u => u.userId !== user.userId)
     }
   },
   mounted() {
