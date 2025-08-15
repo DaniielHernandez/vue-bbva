@@ -135,27 +135,36 @@ export default {
     save(values) {
       this.form.open = false;
       this.loading = true;
+
+      // Obtiene usuarios existentes o crea un array vacío
+      const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+
       if (this.form.id) {
-        updateUserAPI(this.form.id, { ...values, active: this.form.data.active }).then(() => {
-          this.loading = false;
-          this.modal = { open: true, ...editSuccessModal('usuario') };
-          this.form = { ...this.form, id: null, data: {} };
-          this.table.refresh++;
-        }).catch((error) => {
-          this.loading = false;
-          this.errorInRequestModal('actualizar', error)
-        });
+        // Editar usuario existente
+        const index = storedUsers.findIndex(user => user.id === this.form.id);
+        if (index !== -1) {
+          storedUsers[index] = { ...storedUsers[index], ...values };
+        }
+        localStorage.setItem('users', JSON.stringify(storedUsers));
+        this.loading = false;
+        this.modal = { open: true, ...editSuccessModal('usuario') };
+
       } else {
-        createUserAPI({ ...values, active: true }).then(() => {
-          this.loading = false;
-          this.modal = { open: true, ...createSuccessModal('usuario') };
-          this.form = { ...this.form, id: null, data: {} };
-          this.table.refresh++;
-        }).catch((error) => {
-          this.loading = false;
-          this.errorInRequestModal('crear', error);
-        });
+        // Crear usuario nuevo
+        const newUser = {
+          id: Date.now(), // ID único temporal
+          ...values,
+          active: true
+        };
+        storedUsers.push(newUser);
+        localStorage.setItem('users', JSON.stringify(storedUsers));
+        this.loading = false;
+        this.modal = { open: true, ...createSuccessModal('usuario') };
       }
+
+      // Reinicia formulario y refresca tabla
+      this.form = { ...this.form, id: null, data: {} };
+      this.table.refresh++;
     }
   },
   mounted() {
