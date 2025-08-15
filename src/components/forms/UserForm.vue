@@ -213,18 +213,25 @@ export default {
 
       if (name === 'geographyN1Id') {
         if (value === 3) {
+          // Si es "Europa" quitamos el campo de Business Unit
           this.removeInputBu();
         } else {
-          const filter = [{ name, value }];
+          // Simulamos un catálogo de unidades de negocio
+          const mockBu = [
+            { id: 1, name: 'Unidad de Negocio X' },
+            { id: 2, name: 'Unidad de Negocio Y' },
+            { id: 3, name: 'Unidad de Negocio Z' }
+          ];
 
+          // Simulamos parseCatalog como en loadCatalogs
+          this.catalogs.buId = parseCatalog(mockBu);
+
+          // Reseteamos el valor de buId en el formulario
           this.inputs.buId = { value: '', error: null, touch: false };
-          getBusinessUnitsAPI(1, 1000, filter).then((response) => {
-            this.catalogs.buId = parseCatalog(response.data);
-            this.addInputBu();
-          }).catch((error) => {
-            this.requestError('cargar catálogos', error);
-          });
-        };
+
+          // Nos aseguramos que el select se muestre
+          this.addInputBu();
+        }
       }
 
       this.valid = isThereError(this.inputs);
