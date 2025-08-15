@@ -190,8 +190,9 @@ export default {
 
 
 
-  <h2>Lista de Usuarios</h2>
+
   <v-container>
+    <h2 class="mb-2">Lista de Usuarios</h2>
     <v-data-table :headers="headersTableUsers" :items="users" class="elevation-1">
       <template #item.actions="{ item }">
         <!-- Botón Editar -->
